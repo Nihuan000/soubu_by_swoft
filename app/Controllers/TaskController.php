@@ -10,7 +10,9 @@
 
 namespace App\Controllers;
 
+use Swoft\App;
 use Swoft\Http\Server\Bean\Annotation\Controller;
+use Swoft\Task\Exception\TaskException;
 use Swoft\Task\Task;
 
 /**

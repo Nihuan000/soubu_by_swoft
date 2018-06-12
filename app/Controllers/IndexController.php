@@ -11,6 +11,7 @@
 namespace App\Controllers;
 
 use Swoft\App;
+use Swoft\Bean\Annotation\AfterReturning;
 use Swoft\Core\Coroutine;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
@@ -63,6 +64,20 @@ class IndexController
         ];
         // 返回一个 array 或 Arrayable 对象，Response 将根据 Request Header 的 Accept 来返回数据，目前支持 View, Json, Raw
         return compact('name', 'notes', 'links');
+    }
+
+
+    /**
+     * @RequestMapping("test-route")
+     * @author Nihuan
+     * @return array
+     */
+    public function testRoute(): array
+    {
+        $name = 'Test Array';
+        $desc = 'test Info';
+
+        return compact('name','desc');
     }
 
     /**
