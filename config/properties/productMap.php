@@ -8,7 +8,7 @@
  */
 
 return [
-    'mapping' => [
+    'product_mapping' => [
         'product' => [
             'dynamic' => false,
             'properties' => [

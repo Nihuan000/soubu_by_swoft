@@ -54,10 +54,10 @@ class ElasticsearchPoolConfig
 
     /**
      * index settings
-     * @Value(name="${config.mapSetting.settings}")
-     * @var array
+     * @Value(name="${config.settings}")
+     * @var string
      */
-    protected $setting = [];
+    protected $setting;
 
 
     /**
@@ -131,38 +131,38 @@ class ElasticsearchPoolConfig
 
 
     /**
-     * @Value(name="${config.addressBookMap.mapping}")
+     * @Value(name="${config.addressBook_mapping}")
      * @var array
      */
-    protected $addressBook_mapping;
+    protected $addressBook_mapping = [];
 
 
     /**
-     * @Value(name="${config.recommendMap.mapping}")
+     * @Value(name="${config.recommend_mapping}")
      * @var array
      */
-    protected $recommmend_mapping;
+    protected $recommmend_mapping = [];
 
 
     /**
-     * @Value(name="${config.buyMap.mapping}")
+     * @Value(name="${config.buy_mapping}")
      * @var array
      */
-    protected $buy_mapping;
+    protected $buy_mapping = [];
 
 
     /**
-     * @Value(name="${config.productMap.mapping}")
+     * @Value(name="${config.product_mapping}")
      * @var array
      */
-    protected $product_mapping;
+    protected $product_mapping = [];
 
 
     /**
-     * @Value(name="${config.shopMap.mapping}")
+     * @Value(name="${config.shop_mapping}")
      * @var array
      */
-    protected $shop_mapping;
+    protected $shop_mapping = [];
 
 
     /**
@@ -194,7 +194,7 @@ class ElasticsearchPoolConfig
      */
     public function getSetting(): array
     {
-        return $this->setting;
+        return json_decode($this->setting,true);
     }
 
     /**

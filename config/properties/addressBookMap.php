@@ -8,7 +8,7 @@
  */
 
 return [
-    'mapping' => [
+    'addressBook_mapping' => [
         'addressBook' => [
             'dynamic' => false,
             'properties' => [

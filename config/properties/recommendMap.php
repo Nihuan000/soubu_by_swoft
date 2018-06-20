@@ -8,7 +8,7 @@
  */
 
 return [
-  'mapping' => [
+  'recommend_mapping' => [
       'recommend' => [
           'dynamic' => false,
           'properties' => [
