@@ -13,8 +13,8 @@ return [
             'dynamic' => false,
             'properties' => [
                 'pro_item' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'strength_score' => [
                     'type' => 'long'
@@ -29,8 +29,8 @@ return [
                     'type' => 'integer'
                 ],
                 'cover' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'has_img' => [
                     'type' => 'integer'
@@ -42,8 +42,8 @@ return [
                     'type' => 'integer'
                 ],
                 'province' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'price' => [
                     'ignore_malformed' => 'true',
@@ -54,7 +54,7 @@ return [
                 ],
                 'season' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'refresh_count' => [
                     'type' => 'integer'
@@ -71,18 +71,18 @@ return [
                 ],
                 'shop_name' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'is_up' => [
                     'type' => 'integer'
                 ],
                 'crafts' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'use_ids' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'user_id' => [
                     'type' => 'long'
@@ -92,7 +92,7 @@ return [
                 ],
                 'name' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'gram_w' => [
                     'ignore_malformed' => 'true',
@@ -114,23 +114,23 @@ return [
                 ],
                 'pro_name' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'color' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'name_na' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'city' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'lv1_normalized' => [
                     'analyzer' => 'lowercase_whitespace',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'del_status' => [
                     'ignore_malformed' => 'true',
@@ -148,14 +148,14 @@ return [
                 ],
                 'label_key' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'from_type' => [
                     'type' => 'integer'
                 ],
                 'use_pid' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'user_status' => [
                     'ignore_malformed' => 'true',
@@ -166,27 +166,27 @@ return [
                 ],
                 'ingredient' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'lv1' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'fabric_detail' => [
                     'analyzer' => 'ik_smart',
                     'boost' => '0.2',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'flower' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'spread' => [
                     'type' => 'integer'
                 ],
                 'suffix_normalized' => [
                     'analyzer' => 'lowercase_whitespace',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'is_audit' => [
                     'type' => 'integer'
@@ -202,14 +202,14 @@ return [
                 ],
                 'uses' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'add_time' => [
                     'type' => 'integer'
                 ],
                 'pro_num' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ]
             ]
         ]

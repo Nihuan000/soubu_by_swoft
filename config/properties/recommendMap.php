@@ -35,8 +35,8 @@ return [
                   'type' => 'integer'
               ],
               'cid' => [
-                  'type' => 'text',
-                  'index' => 'not_analyzed'
+                  'type' => 'keyword',
+                  'index' => true
               ],
               'status' => [
                   'type' => 'integer'

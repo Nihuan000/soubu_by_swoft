@@ -14,32 +14,32 @@ return [
             'properties' => [
                 'parent' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'role' => [
                     'type' => 'integer'
                 ],
                 'city' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'is_customize' => [
                     'type' => 'integer'
                 ],
                 'remark_na' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'remark' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'del_status' => [
                     'type' => 'integer'
                 ],
                 'pic' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'forbid' => [
                     'type' => 'integer'
@@ -58,22 +58,22 @@ return [
                 ],
                 'proName_ids' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'phone_is_public' => [
                     'type' => 'integer'
                 ],
                 'contact_num' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'category_id' => [
                     'analyzer' => 'lowercase_keyword',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'province' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'has_earnest' => [
                     'type' => 'integer'
@@ -81,7 +81,7 @@ return [
                 'push_key' => [
                     'analyzer' => 'ik_smart',
                     'boost' => '1.5',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'sms_status' => [
                     'type' => 'integer'
@@ -106,27 +106,27 @@ return [
                 ],
                 'label_ids' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'labels_normalized' => [
                     'analyzer' => 'lowercase_whitespace',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'type_id' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'crafts_ids' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'labels' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'unit' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'is_audit' => [
                     'type' => 'integer'
@@ -136,7 +136,7 @@ return [
                 ],
                 'uses_ids' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'user_id' => [
                     'type' => 'long'
@@ -148,15 +148,15 @@ return [
                     'type' => 'long'
                 ],
                 'earnest' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'add_time' => [
                     'type' => 'integer'
                 ],
                 'contacts' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'city_id' => [
                     'type' => 'integer'

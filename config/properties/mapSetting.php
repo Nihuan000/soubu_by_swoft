@@ -15,6 +15,11 @@ return [
                 "type":"length",
                 "min":3,
                 "max":4
+            },
+            "my_pinyin": {
+                "type": "pinyin",
+                "first_letter": "prefix",
+                "padding_char": " "
             }
         },
         "tokenizer":{
@@ -25,6 +30,11 @@ return [
             }
         },
         "analyzer":{
+            "ik_pinyin_analyzer": {
+                "type": "custom",
+                "tokenizer": "ik_smart",
+                "filter": ["my_pinyin", "word_delimiter"]
+            },
             "lowercase_whitespace":{
                 "type":"custom",
                 "tokenizer":"whitespace",

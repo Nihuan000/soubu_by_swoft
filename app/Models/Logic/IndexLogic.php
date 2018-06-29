@@ -10,7 +10,7 @@
 
 namespace App\Models\Logic;
 
-use App\Models\Data\UserData;
+//use App\Models\Data\UserData;
 use App\Models\Data\UserExtData;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
@@ -26,25 +26,25 @@ use Swoft\Bean\Annotation\Inject;
  */
 class IndexLogic
 {
-    /**
-     *
-     * @Inject()
-     * @var UserData
-     */
-    private $userData;
+//    /**
+//     *
+//     * @Inject()
+//     * @var UserData
+//     */
+//    private $userData;
 
     /**
      *
-     * @Inject()
-     * @var UserExtData
+//     * @Inject()
+//     * @var UserExtData
      */
-    private $userExtData;
+//    private $userExtData;
 
     public function getUser()
     {
-        $base = $this->userData->getUserInfo();
-        $ext = $this->userExtData->getExtInfo();
-
-        return array_merge($base, $ext);
+//        $base = $this->userData->getUserInfo();
+//        $ext = $this->userExtData->getExtInfo();
+//
+//        return array_merge($base, $ext);
     }
 }

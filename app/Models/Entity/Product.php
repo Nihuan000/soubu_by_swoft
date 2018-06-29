@@ -11,12 +11,11 @@ use Swoft\Db\Types;
 
 /**
  * 店铺产品表
-
  * @Entity()
  * @Table(name="sb_product")
- * @uses      SbProduct
+ * @uses      Product
  */
-class SbProduct extends Model
+class Product extends Model
 {
     /**
      * @var int $proId 

@@ -11,12 +11,11 @@ use Swoft\Db\Types;
 
 /**
  * 实力商家表
-
  * @Entity()
  * @Table(name="sb_user_strength")
- * @uses      SbUserStrength
+ * @uses      UserStrength
  */
-class SbUserStrength extends Model
+class UserStrength extends Model
 {
     /**
      * @var int $id 

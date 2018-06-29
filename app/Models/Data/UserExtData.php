@@ -31,14 +31,14 @@ class UserExtData
      */
     private $userExtDao;
 
-    /**
-     * @Inject()
-     * @var UserData
-     */
-    private $userData;
+//    /**
+//     * @Inject()
+//     * @var UserData
+//     */
+//    private $userData;
 
     public function getExtInfo()
     {
-        return $this->userExtDao->getExtInfo();
+//        return $this->userExtDao->getExtInfo();
     }
 }

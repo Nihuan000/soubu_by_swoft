@@ -1,11 +1,9 @@
 <?php
 /**
- * This file is part of Swoft.
- *
- * @link https://swoft.org
- * @document https://doc.swoft.org
- * @contact group@swoft.org
- * @license https://github.com/swoft-cloud/swoft/blob/master/LICENSE
+ * Created by PhpStorm.
+ * User: nihuan
+ * Date: 18-6-29
+ * Time: 下午2:22
  */
 
 namespace App\Models\Data;
@@ -18,22 +16,41 @@ use Swoft\Bean\Annotation\Inject;
  *
  * @Bean()
  * @uses      UserData
- * @version   2017年04月25日
- * @author    stelin <phpcrazy@126.com>
- * @copyright Copyright 2010-2016 Swoft software
- * @license   PHP Version 7.x {@link http://www.php.net/license/3_0.txt}
+ * @author    Nihuan
  */
 class UserData
 {
+
     /**
-     *
+     * 用户模型
      * @Inject()
      * @var UserDao
      */
     private $userDao;
 
-    public function getUserInfo()
+    /**
+     *
+     * @author Nihuan
+     * @param string $select_fields
+     * @param array $where
+     * @param int $limit
+     * @param int $last_id
+     * @return array
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getIndexUserList($select_fields, $where, $limit, $last_id)
     {
-        return $this->userDao->getUserInfo();
+        return $this->userDao->getIndexListDao($select_fields,$where,$limit,$last_id);
+    }
+
+    /**
+     * @author Nihuan
+     * @param array $params 修改/注册时间列表
+     * @return int
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getIndexUserCount($params)
+    {
+        return $this->userDao->getIndexUserCount($params);
     }
 }

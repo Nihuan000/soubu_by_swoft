@@ -11,12 +11,11 @@ use Swoft\Db\Types;
 
 /**
  * 用户等级表
-
  * @Entity()
  * @Table(name="sb_user_score")
- * @uses      SbUserScore
+ * @uses      UserScore
  */
-class SbUserScore extends Model
+class UserScore extends Model
 {
     /**
      * @var int $id 

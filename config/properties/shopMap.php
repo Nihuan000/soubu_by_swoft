@@ -14,11 +14,11 @@ return [
             'properties' => [
                 'detail_address' => [
                     'analyzer' => 'ik_smart',
-                    'type' => 'string',
+                    'type' => 'text',
                 ],
                 'phone' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'phone_is_protected' => [
                     'type' => 'integer'
@@ -36,8 +36,8 @@ return [
                     'type' => 'integer'
                 ],
                 'city' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'city_id' => [
                     'type' => 'integer'
@@ -48,10 +48,6 @@ return [
                 'level' => [
                     'type' => 'integer'
                 ],
-                'shop_main_product' => [
-                    'analyzer' => 'ik_smart',
-                    'type' => 'string'
-                ],
                 'login_time' => [
                     'type' => 'integer'
                 ],
@@ -59,16 +55,19 @@ return [
                     'type' => 'integer'
                 ],
                 'name' => [
-                    'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'analyzer' => 'ik_pinyin_analyzer',
+                    'term_vector' => 'with_positions_offsets',
+                    'store' => 'no',
+                    'boost' => 10,
+                    'type' => 'text'
                 ],
                 'name_na' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'province' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'role' => [
                     'type' => 'integer'
@@ -94,13 +93,9 @@ return [
                 'reg_time' => [
                     'type' => 'integer'
                 ],
-                'shop_main_product_normalized' => [
-                    'analyzer' => 'lowercase_whitespace',
-                    'type' => 'string'
-                ],
                 'portrait' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'order_status' => [
                     'type' => 'integer'
@@ -112,8 +107,10 @@ return [
                     'type' => 'double'
                 ],
                 'main_product' => [
-                    'analyzer' => 'ik_smart',
-                    'type' => 'string'
+                    'analyzer' => 'ik_pinyin_analyzer',
+                    'term_vector' => 'with_positions_offsets',
+                    'store' => 'no',
+                    'type' => 'text'
                 ],
                 'from_type' => [
                     'type' => 'integer'
@@ -123,7 +120,7 @@ return [
                 ],
                 'main_product_normalized' => [
                     'analyzer' => 'lowercase_whitespace',
-                    'type' => 'string'
+                    'type' => 'text'
                 ],
                 'forbid' => [
                     'type' => 'integer'
