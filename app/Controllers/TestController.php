@@ -8,7 +8,10 @@
 
 namespace App\Controllers;
 
+use App\Models\Data\ProductData;
+use App\Models\Data\UserData;
 use App\Models\Entity\TbOut2csv;
+use App\Models\Entity\TbProcess;
 use App\Models\Entity\UserScore;
 use App\Models\Entity\UserStrength;
 use App\Pool\Config\ElasticsearchPoolConfig;
@@ -16,8 +19,10 @@ use Elasticsearch\ClientBuilder;
 use Swoft\Bean\Annotation\Value;
 use Swoft\Db\Db;
 use Swoft\Db\Exception\DbException;
+use Swoft\Db\Exception\MysqlException;
 use Swoft\Db\Query;
 use Swoft\Bean\Annotation\Inject;
+use Swoft\Db\QueryBuilder;
 use Swoft\Http\Server\Bean\Annotation\Controller;
 use Swoft\Http\Server\Bean\Annotation\RequestMapping;
 use App\Models\Entity\User;
@@ -30,11 +35,10 @@ use Swoft\App;
  */
 class TestController
 {
-
     //每次读取数据量
-    protected $limit = 30000;
+    protected $limit = 5000;
     //批量写入ES数据量
-    protected $page_limit = 5000;
+    protected $page_limit = 1000;
     //定时器(分钟)
     protected $timer = 3;
 
@@ -44,6 +48,7 @@ class TestController
      */
     protected $searchDbName;
 
+
     /**
      * The config of ElasticsearchPool
      *
@@ -52,6 +57,21 @@ class TestController
      * @var ElasticsearchPoolConfig
      */
     protected $elasticPoolConfig;
+
+
+    /**
+     * 用户数据
+     * @Inject()
+     * @var UserData
+     */
+    private $userData;
+
+    /**
+     * 产品数据
+     * @Inject()
+     * @var ProductData
+     */
+    private $productData;
 
     /**
      * @RequestMapping()
@@ -66,135 +86,166 @@ class TestController
 
 
 
-    public function shopService()
+    public function productService()
     {
-        $shop_alter_time_pre = $shop_reg_time_pre = 0;
-        $shop_alter_time = $shop_reg_time = time();
-        echo 'User Index Task Start' . "\n";
-        App::info('User Index Task Start');
-        App::info('Version:' . $this->elasticPoolConfig->getShopMaster());
-        App::info('Check if the index exists');
+        $pro_alter_time_pre = $pro_add_time_pre = $shop_alter_time_pre = 0;
+        $pro_alter_time = $pro_add_time = $shop_alter_time = time();
+        echo 'Product Index Task Start' . "\n";
+//        App::info('Product Index Task Start');
+//        App::info('Version:' . $this->elasticPoolConfig->getProductMaster());
+//        App::info('Check if the index exists');
         $client = ClientBuilder::create()->setHosts($this->elasticPoolConfig->getUri())->build();
         $params = [
-            'index' => $this->elasticPoolConfig->getShopMaster(),
+            'index' => $this->elasticPoolConfig->getProductMaster(),
         ];
         $index_exists = $client->indices()->exists($params);
         if($index_exists == false){
-            $user_params = [
-                'index' => $this->elasticPoolConfig->getShopMaster(),
+            $product_params = [
+                'index' => $this->elasticPoolConfig->getProductMaster(),
                 'body' => [
                     'settings' => $this->elasticPoolConfig->getSetting(),
                     'mappings' => $this->elasticPoolConfig->getShopMap()
                 ]
             ];
-            $responseRes = $client->indices()->create($user_params);
+            $responseRes = $client->indices()->create($product_params);
             $index_exists = $responseRes['acknowledged'];
         }
+
         if($index_exists === true){
-            $last_time = Query::table(TbOut2csv::class)->selectDb($this->searchDbName)->where('out2csv_id',$this->elasticPoolConfig->getShopMaster())->get()->getResult();
-            if(!empty($last_time)){
+            $out2csv = Query::table(TbOut2csv::class)
+                ->selectDb($this->searchDbName)
+                ->where('out2csv_id',$this->elasticPoolConfig->getProductMaster())
+                ->limit(1)
+                ->orderBy('id',QueryBuilder::ORDER_BY_DESC)
+                ->get()
+                ->getResult();
+            if(!empty($out2csv)){
+                $check_process = $this->get_process_record($out2csv[0]['id']);
+                if($check_process){
+//                    App::info('Product Index Task Is Running');
+                    return;
+                }
+                $last_time = $out2csv[0]['parameter'];
                 $last_time_list = json_decode($last_time,true);
                 $shop_alter_time_pre = $last_time_list['shop_alter_time'];
-                $shop_reg_time_pre = $last_time_list['shop_reg_time'];
+                $pro_alter_time_pre = $last_time_list['pro_alter_time'];
+                $pro_add_time_pre = $last_time_list['pro_add_time'];
             }
 
-            try {
-                $select_fields = "user_id,name,name as name_na,portrait,operation_mode,phone,
-            province_id,province,city_id,city,detail_address,status,is_push,phone_is_protected,
-            phone_type,certification_type,role,reg_time,last_time AS login_time,safe_price, 
-            CASE WHEN safe_price > 0 THEN 1 ELSE 0 END has_margin,from_type,alter_time,company_size,level";
+//            try {
+                //记录索引时间
+                $last['pro_add_time.pre'] = $pro_add_time_pre;
+                $last['pro_alter_time.pre'] = $pro_alter_time_pre;
+                $last['shop_alter_time.pre'] = $shop_alter_time_pre;
+                $last['pro_add_time'] = $pro_add_time;
+                $last['pro_alter_time'] = $pro_alter_time;
+                $last['shop_alter_time'] = $shop_alter_time;
+//                $o2c_id = $this->add_index_time($this->elasticPoolConfig->getProductMaster(), $last);
+//                $this->add_process_record($o2c_id);
 
-                $count = Db::query('select count(*) AS user_count FROM sb_user WHERE role IN (2,3,4) AND name NOT LIKE "%搜布%" AND ((alter_time > ? and alter_time <= ?) OR (reg_time > ? AND reg_time <= ?))', [$shop_alter_time_pre, $shop_alter_time, $shop_reg_time_pre, $shop_reg_time])->getResult();
-                if($count[0]['user_count'] > 0){
+                $select_fields = "pro_id AS product_id,cover,case when cover is not null and LENGTH(cover) > 0 then 1 else 0 end has_img,user_id,pro_name,name,name as name_na,uses,ingredient,crafts,price,cut_price,card_price,pro_item,gram_w,season,color,flower,status,is_recommend,del_status,fabric_detail,phone_is_public,clicks,is_up,pro_num,type,add_time,alter_time,refresh_time,refresh_count,card_ship_type,status,label_key,from_type,is_audit,valid_time";
+
+                $where = [
+                    'pre_alter_time' => $pro_alter_time_pre,
+                    'pre_add_time' => $pro_add_time_pre,
+                    'pre_shop_time' => $shop_alter_time_pre,
+                    'pro_alter_time' => $pro_alter_time,
+                    'pro_add_time' => $pro_add_time,
+                    'shop_alter_time' => $shop_alter_time
+                ];
+                $count = $this->productData->getIndexProductCount($where);
+                if($count > 0){
                     $last_id = 0;
-                    $pages = ceil($count[0]['user_count']/$this->limit);
+                    $pages = ceil($count/$this->limit);
                     for ($i = 0; $i< $pages; $i++){
-                        $user_list = Db::query("select {$select_fields} FROM sb_user WHERE role IN (2,3,4) AND name NOT LIKE '%搜布%' AND ((alter_time > ? and alter_time <= ?) OR (reg_time > ? AND reg_time <= ?)) AND user_id > ? ORDER BY user_id ASC LIMIT {$this->limit}", [$shop_alter_time_pre, $shop_alter_time, $shop_reg_time_pre, $shop_reg_time, $last_id])->getResult();
-                        App::info('执行SQL: '.get_last_sql());
-                        if(!empty($user_list)){
-                            $count_pages = ceil(count($user_list)/$this->page_limit);
-                            $bulk = ['index' => $this->elasticPoolConfig->getShopMaster(), 'type' => 'shop'];
+                        $product_list = $this->productData->getIndexProductList($select_fields, $where, $this->limit, $last_id);
+                        if(!empty($product_list)){
+                            $count_pages = ceil(count($product_list)/$this->page_limit);
                             for ($c = 0;$c < $count_pages; $c ++){
-                                $list = array_slice($user_list, $c*$this->page_limit, $this->page_limit);
+                                $list = array_splice($product_list, 0, $this->page_limit);
                                 if(!empty($list)){
-                                    $user_ids = array_column($list,'user_id');
+                                    $user_ids = array_unique(array_column($list,'user_id'));
                                     //deposit
                                     $deposit = $this->get_user_deposit($user_ids);
                                     $deposit_uids = array_flip(array_column($deposit,'userId'));
                                     //forbid
                                     $forbid = $this->get_forbid_users($user_ids);
                                     $forbid_uids = array_flip(array_column($forbid,'uid'));
-                                    //main_product
-                                    $main_product = $this->get_user_main_product($user_ids);
-                                    $main_product_uids = array_flip(array_column($main_product,'user_id'));
                                     //orders_amount
                                     $order_amount = $this->get_user_month_order($user_ids);
                                     $order_amount_uids = array_flip(array_column($order_amount,'seller_id'));
                                     //strength_score
                                     $strength_score = $this->get_user_score($user_ids);
                                     $strength_score_uids = array_flip(array_column($strength_score,'user_id'));
+                                    $bulk = $index = [];
                                     foreach ($list as $key => $user){
-                                        $list[$key]['forbid'] = 0;
-                                        $list[$key]['deposit'] = 0;
-                                        $list[$key]['deposit_time'] = 0;
-                                        $list[$key]['orders_amount'] = 0;
-                                        $list[$key]['strength_score'] = 0;
-                                        $list[$key]['main_product'] = '';
-                                        $list[$key]['main_product_normalized'] = '';
+                                        $index = $user;
+                                        $index['user_id'] = (int)$user['user_id'];
+                                        $index['forbid'] = 0;
+                                        $index['deposit'] = 0;
+                                        $index['deposit_time'] = 0;
+                                        $index['orders_amount'] = 0;
+                                        $index['strength_score'] = 0;
+                                        $index['main_product'] = '';
+                                        $index['main_product_normalized'] = '';
 
                                         if (isset($deposit_uids[$user['user_id']])){
                                             $user_deposit = $deposit[$deposit_uids[$user['user_id']]];
-                                            $list[$key]['deposit'] = intval($user_deposit['level']/5);
-                                            $list[$key]['deposit_time'] = $user_deposit['startTime'];
+                                            $index['deposit'] = intval($user_deposit['level']/5);
+                                            $index['deposit_time'] = $user_deposit['startTime'];
                                         }
 
                                         if (isset($forbid_uids[$user['user_id']])){
-                                            $list[$key]['forbid'] = 1;
+                                            $index['forbid'] = 1;
                                         }
 
                                         if (isset($main_product_uids[$user['user_id']])){
                                             $main = $main_product[$main_product_uids[$user['user_id']]];
-                                            $list[$key]['main_product'] = $main['parents'] . ',' . $main['tags'] . ',' . $main['sub_tag'];
-                                            $list[$key]['main_product_normalized'] = str_replace(',',' ',$list[$key]['main_product']);
+                                            $index['main_product'] = $main['parents'] . ',' . $main['tags'] . ',' . $main['sub_tag'];
+                                            $index['main_product_normalized'] = str_replace(',',' ',$index['main_product']);
                                         }
 
                                         if(isset($order_amount_uids[$user['user_id']])){
                                             $order = $order_amount[$order_amount_uids[$user['user_id']]];
-                                            $list[$key]['orders_amount'] = sprintf('%.2f',$order['total_amount']);
+                                            $index['orders_amount'] = sprintf('%.2f',$order['total_amount']);
                                         }
 
                                         if(isset($strength_score_uids[$user['user_id']])){
                                             $score = $strength_score[$strength_score_uids[$user['user_id']]];
-                                            $list[$key]['strength_score'] = intval($score['score_value']);
+                                            $index['strength_score'] = intval($score['score_value']);
                                         }
+                                        $bulk['body'][] = [
+                                            'index' => [
+                                                '_index' => $this->elasticPoolConfig->getShopMaster(),
+                                                '_type' => 'shop',
+                                                '_id' => $user['user_id']
+                                            ]
+                                        ];
+                                        $bulk['body'][] = $index;
                                         $last_id = $user['user_id'];
                                     }
-                                    $bulk['body'] = $list;
                                     $res = $client->bulk($bulk);
+                                    $bulk = $index = [];
                                     if($res){
-                                        App::info('Shop Index Result : ' . $res);
+                                        App::info('Shop Index Result : ' . json_encode($res));
                                     }
                                 }
                                 $user_ids = $list = $deposit = $main_product = [];
                                 $deposit_uids = $forbid_uids = $main_product_uids = $order_amount_uids = $strength_score_uids = [];
-
                             }
                             $user_list = [];
                         }
+                        App::info('Last Id:' . $last_id);
                     }
-                    $last['shop_alter_time.pre'] = $shop_alter_time_pre;
-                    $last['shop_reg_time.pre'] = $shop_reg_time_pre;
-                    $last['shop_alter_time'] = $shop_alter_time;
-                    $last['shop_reg_time'] = $shop_reg_time;
-                    $this->update_index_time($this->elasticPoolConfig->getShopMaster(), $last);
                 }
-            } catch (DbException $e) {
-                App::debug('SQL Failed to run');
-            } catch (DbException $e) {
-                App::debug($e->getMessage());
-            }
+//                $this->alter_process_record($o2c_id);
+//            } catch (DbException $e) {
+//                App::debug('SQL Failed to run');
+//            } catch (DbException $e) {
+//                App::debug($e->getMessage());
+//            } catch (MysqlException $e) {
+//            }
         }
-
         App::info('User Index Task End!');
     }
 
@@ -242,6 +293,7 @@ class TestController
         return $order_list;
     }
 
+
     /**
      * 获取搜索过滤用户
      * @author Nihuan
@@ -272,12 +324,77 @@ class TestController
      * @author Nihuan
      * @param string $master
      * @param array $time_list
+     * @throws \Swoft\Db\Exception\MysqlException
+     * @return mixed
      */
-    protected function update_index_time(string $master, array $time_list)
+    protected function add_index_time(string $master, array $time_list)
     {
         $data = [
+            'out2csv_id' => $master,
             'parameter' => json_encode($time_list)
         ];
-        Query::table(TbOut2csv::class)->selectDb($this->searchDbName)->where('out2csv_id',$master)->update($data)->getResult();
+        return Query::table(TbOut2csv::class)->selectDb($this->searchDbName)->insert($data)->getResult();
+    }
+
+    /**
+     * 写入索引进程记录
+     * @author Nihuan
+     * @param $o2c_id
+     * @return mixed
+     * @throws \Swoft\Db\Exception\MysqlException
+     */
+    protected function add_process_record($o2c_id)
+    {
+        $data = [
+            'o2c_id' => $o2c_id,
+            'uuid' => $this->guid(),
+            'type' => 3,
+            'start_time' => time(),
+            'state' => 1
+        ];
+        return Query::table(TbProcess::class)->selectDb($this->searchDbName)->insert($data)->getResult();
+    }
+
+    /**
+     * 获取当前索引状态
+     * @author Nihuan
+     * @param $o2c_id
+     * @return mixed
+     */
+    protected function get_process_record($o2c_id)
+    {
+        return Query::table(TbProcess::class)
+            ->selectDb($this->searchDbName)
+            ->where('o2c_id',$o2c_id)
+            ->andWhere('state',1)
+            ->get()
+            ->getResult();
+    }
+
+    /**
+     * 修改索引进程状态
+     * @author Nihuan
+     * @param $o2c_id
+     * @return mixed
+     */
+    protected function alter_process_record($o2c_id)
+    {
+        $mictime = microtime(1) * 1000;
+        return Query::table(TbProcess::class)->selectDb($this->searchDbName)->where('o2c_id',$o2c_id)->update(['state' => 0, 'end_time' => $mictime])->getResult();
+    }
+
+    /**
+     * uuid 生成
+     * @author Nihuan
+     * @return string
+     */
+    protected function guid() {
+        $charid = strtoupper(md5(uniqid(mt_rand(), true)));
+        $uuid =
+            substr($charid, 8, 4)
+            .substr($charid,12, 4)
+            .substr($charid,16, 4)
+            .substr($charid,20,3);
+        return $uuid;
     }
 }

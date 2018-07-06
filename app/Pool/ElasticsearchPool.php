@@ -8,27 +8,59 @@
 
 namespace App\Pool;
 
+use App\Pool\Config\ElasticsearchPoolConfig;
+use Swoft\Bean\Annotation\Inject;
+use Swoft\Bean\Annotation\Pool;
+use Swoft\Exception\PoolException;
+use Elasticsearch\ClientBuilder;
 
-use Elasticsearch\ConnectionPool\AbstractConnectionPool;
-use Elasticsearch\ConnectionPool\ConnectionPoolInterface;
-
-class ElasticsearchPool extends AbstractConnectionPool implements ConnectionPoolInterface
+/**
+ * ElasticsearchPool
+ *
+ * @Pool("ElasticsearchPool")
+ */
+class ElasticsearchPool
 {
 
     /**
-     * @param bool $force
-     *
-     * @return \Elasticsearch\Connections\ConnectionInterface
+     * @Inject()
+     * @var ElasticsearchPoolConfig
      */
-    public function nextConnection($force = false)
+    public $poolConfig;
+
+    /**
+     * 单连接池
+     * @Inject()
+     * @author Nihuan
+     * @return \Elasticsearch\Client
+     * @throws PoolException
+     */
+    public function simpleConnectionPool()
     {
-        if (isset($this->connections)) {
-            return $this->selector->select($this->connections);
+        if (empty($this->poolConfig)) {
+            throw new PoolException('You must to set elasticPoolConfig by @Inject!');
         }
+        $client = ClientBuilder::create()
+            ->setConnectionPool('\Elasticsearch\ConnectionPool\SimpleConnectionPool',[])
+            ->setHosts($this->poolConfig->getUri())->build();
+        return $client;
     }
 
-    public function scheduleCheck()
+    /**
+     * 静态连接池
+     * @Inject()
+     * @author Nihuan
+     * @return \Elasticsearch\Client
+     * @throws PoolException
+     */
+    public function staticNoPingConnectionPool()
     {
-        // TODO: Implement scheduleCheck() method.
+        if (empty($this->poolConfig)) {
+            throw new PoolException('You must to set elasticPoolConfig by @Inject!');
+        }
+        $client = ClientBuilder::create()
+            ->setConnectionPool('\Elasticsearch\ConnectionPool\staticNoPingConnectionPool',[])
+            ->setHosts($this->poolConfig->getUri())->build();
+        return $client;
     }
 }

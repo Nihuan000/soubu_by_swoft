@@ -8,11 +8,8 @@
 
 namespace App\Models\Dao;
 
-use App\Models\Entity\User;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Db\Db;
-use Swoft\Db\Query;
-use Swoft\Db\QueryBuilder;
 
 /**
  * 用户模型数据对象
@@ -65,5 +62,22 @@ class UserDao
                 $params['shop_reg_time']
             ])->getResult();
         return $count[0]['user_count'];
+    }
+
+    /**
+     * @author Nihuan
+     * @param array $params
+     * @throws \Swoft\Db\Exception\DbException
+     * @return array
+     */
+    public function getUserIdsByParams(array $params)
+    {
+        $query = Db::query("select user_id FROM sb_user WHERE alter_time > ? and alter_time <= ? AND role IN (2,3,4)",
+            [
+                $params['pre_shop_time'],
+                $params['shop_alter_time']
+            ])->getResult();
+        $user_ids = array_column($query,'user_id');
+        return $user_ids;
     }
 }

@@ -164,6 +164,12 @@ class ElasticsearchPoolConfig
      */
     protected $shop_mapping = [];
 
+    /**
+     * @Value(env="${ES_PAGE_SIZE}")
+     * @var int
+     */
+    protected $page_size = 20;
+
 
     /**
      * @return string
@@ -315,6 +321,14 @@ class ElasticsearchPoolConfig
     public function getRecommendMap(): array
     {
         return $this->recommmend_mapping;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSize(): int
+    {
+        return $this->page_size;
     }
 
 }

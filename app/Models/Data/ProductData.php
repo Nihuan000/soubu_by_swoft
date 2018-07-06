@@ -8,8 +8,70 @@
 
 namespace App\Models\Data;
 
+use App\Models\Dao\ProductDao;
+use Swoft\Bean\Annotation\Bean;
+use Swoft\Bean\Annotation\Inject;
 
+/**
+ * @Bean()
+ * @uses ProductData
+ * @author Nihuan
+ */
 class ProductData
 {
+
+    /**
+     * 产品模型
+     * @Inject()
+     * @var ProductDao
+     */
+    private $productDao;
+
+    /**
+     * 格式化店铺产品返回字段
+     * @author Nihuan
+     * @param array $data
+     * @return array
+     */
+    public function simpleShopProduct(array $data)
+    {
+        $dataList = [];
+        foreach ($data as $row) {
+            $product['productId'] = intval($row['_id']);
+            $product['name'] = $row['_source']['name'];
+            $product['price'] = $row['_source']['price'];
+            $product['cover'] = $row['_source']['cover'];
+            $dataList[] = $product;
+        }
+        return $dataList;
+    }
+
+
+    /**
+     * @author Nihuan
+     * @param array $where
+     * @return int
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getIndexProductCount(array $where)
+    {
+        return $this->productDao->getProductCount($where);
+    }
+
+
+    /**
+     * 产品索引数据方法
+     * @author Nihuan
+     * @param $select_fields
+     * @param $where
+     * @param $limit
+     * @param $last_id
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getIndexProductList($select_fields, $where, $limit, $last_id)
+    {
+        return $this->productDao->getProductList($select_fields,$where,$limit,$last_id);
+    }
 
 }
