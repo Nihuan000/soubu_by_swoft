@@ -9,7 +9,7 @@
 
 return [
     'addressBook_mapping' => [
-        'addressBook' => [
+        'addressbook' => [
             'dynamic' => false,
             'properties' => [
                 'safe_price' => [
@@ -19,17 +19,14 @@ return [
                     'type' => 'integer'
                 ],
                 'name_na' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'level' => [
                     'type' => 'integer'
                 ],
                 'operation_mode' => [
                     'type' => 'integer'
-                ],
-                'strength_score' => [
-                    'type' => 'long'
                 ],
                 'certification_type' => [
                     'type' => 'integer'
@@ -38,8 +35,8 @@ return [
                     'type' => 'integer'
                 ],
                 'portrait' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'name_search_normalized' => [
                     'analyzer' => 'lowercase_whitespace',
@@ -49,8 +46,8 @@ return [
                     'type' => 'integer'
                 ],
                 'phone' => [
-                    'index' => 'not_analyzed',
-                    'type' => 'string'
+                    'index' => true,
+                    'type' => 'keyword'
                 ],
                 'phone_search_normalized' => [
                     'analyzer' => 'lowercase_whitespace',

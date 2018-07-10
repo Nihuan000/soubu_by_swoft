@@ -53,4 +53,58 @@ class UserData
     {
         return $this->userDao->getIndexUserCount($params);
     }
+
+    /**
+     * @author Nihuan
+     * @param $params
+     * @return int
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getPushUserCount($params)
+    {
+        return $this->userDao->getPushUserCount($params);
+    }
+
+    /**
+     * 索引推送用户列表
+     * @author Nihuan
+     * @param $select_fields
+     * @param $where
+     * @param $limit
+     * @param $last_id
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getPushUserList($select_fields, $where, $limit, $last_id)
+    {
+        return $this->userDao->getPushUserListDao($select_fields, $where, $limit, $last_id);
+    }
+
+
+    /**
+     * 通讯录用户数
+     * @author Nihuan
+     * @param $params
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getAddressCount($params)
+    {
+        return $this->userDao->getAddressCount($params);
+    }
+
+    /**
+     * 通讯录用户索引列表
+     * @author Nihuan
+     * @param $select_fields
+     * @param $where
+     * @param $limit
+     * @param $last_id
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getAddressList($select_fields, $where, $limit, $last_id)
+    {
+        return $this->userDao->getAddressListDao($select_fields, $where, $limit, $last_id);
+    }
 }

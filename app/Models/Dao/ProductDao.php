@@ -37,18 +37,22 @@ class ProductDao
      */
     public function getProductCount(array $params)
     {
-        $where = "(add_time > ? AND add_time <= ?) OR (alter_time > ? AND alter_time <= ?)";
+        $or = [
+            "(alter_time > ? AND alter_time <= ?)"
+        ];
         if($params['pre_shop_time'] > 0){
             $user = $this->userDao->getUserIdsByParams($params);
-            $uid = implode(',',$user);
-            $where .= " OR user_id IN ($uid)";
+            if(!empty($user)){
+                $uid = implode(',',$user);
+                $or[] = "user_id IN ($uid)";
+            }
+
         }
+        $where = implode(' OR ', $or);
 
         $count = Db::query(
             "select count(*) AS product_count FROM sb_product WHERE $where",
             [
-                $params['pre_add_time'],
-                $params['pro_add_time'],
                 $params['pre_alter_time'],
                 $params['pro_alter_time']
             ])->getResult();
@@ -72,19 +76,18 @@ class ProductDao
         ];
         if($params['pre_shop_time'] > 0){
             $user = $this->userDao->getUserIdsByParams($params);
-            $uid = implode(',',$user);
-            $or[] = "user_id IN ($uid)";
+            if(!empty($user)){
+                $uid = implode(',',$user);
+                $or[] = "user_id IN ($uid)";
+            }
         }
         $where = implode(' OR ', $or);
 
         $product_list = Db::query("select {$select_fields} FROM sb_product WHERE ($where) AND pro_id > ? ORDER BY pro_id ASC LIMIT {$limit}",
             [
-                $params['pre_add_time'],
-                $params['pro_add_time'],
                 $params['pre_alter_time'],
                 $params['pro_alter_time'],
-                $last_id,
-                $limit
+                $last_id
             ])->getResult();
         return $product_list;
     }

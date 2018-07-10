@@ -25,9 +25,6 @@ return [
                 'refresh_time' => [
                     'type' => 'integer'
                 ],
-                'product_number' => [
-                    'type' => 'integer'
-                ],
                 'cover' => [
                     'index' => true,
                     'type' => 'keyword'
@@ -58,9 +55,6 @@ return [
                 ],
                 'refresh_count' => [
                     'type' => 'integer'
-                ],
-                'orders_total' => [
-                    'type' => 'long'
                 ],
                 'cut_price' => [
                     'ignore_malformed' => 'true',
@@ -205,6 +199,9 @@ return [
                     'type' => 'text'
                 ],
                 'add_time' => [
+                    'type' => 'integer'
+                ],
+                'valid_time' => [
                     'type' => 'integer'
                 ],
                 'pro_num' => [

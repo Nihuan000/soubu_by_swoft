@@ -64,6 +64,39 @@ class UserDao
         return $count[0]['user_count'];
     }
 
+
+    /**
+     * @author Nihuan
+     * @param array $params
+     * @return int
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getPushUserCount(array $params)
+    {
+        $count = Db::query("select count(*) AS push_count from sb_user WHERE role IN (2,3,4) AND last_time > ? ",[
+            $params['pre_push_time']
+        ])->getResult();
+        return $count[0]['push_count'];
+    }
+
+    /**
+     * @author Nihuan
+     * @param string $select_fields
+     * @param array $params
+     * @param int $limit
+     * @param int $last_id
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getPushUserListDao(string $select_fields, array $params, int $limit, int $last_id)
+    {
+        $user_list = Db::query("SELECT {$select_fields} FROM sb_user WHERE role IN (2,3,4) AND last_time > ? AND user_id > ? ORDER BY user_id ASC LIMIT {$limit}", [
+            $params['pre_push_time'],
+            $last_id
+        ])->getResult();
+        return $user_list;
+    }
+
     /**
      * @author Nihuan
      * @param array $params
@@ -79,5 +112,38 @@ class UserDao
             ])->getResult();
         $user_ids = array_column($query,'user_id');
         return $user_ids;
+    }
+
+
+    /**
+     * @author Nihuan
+     * @param string $select_fields
+     * @param array $params
+     * @param int $limit
+     * @param int $last_id
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getAddressListDao(string $select_fields, array $params, int $limit, int $last_id)
+    {
+        $address_list = Db::query("SELECT {$select_fields} FROM sb_user WHERE status = 1 AND last_time > ? AND user_id > ? ORDER BY user_id ASC LIMIT {$limit}", [
+            $params['pre_alter_time'],
+            $last_id
+        ])->getResult();
+        return $address_list;
+    }
+
+    /**
+     * @author Nihuan
+     * @param array $params
+     * @return mixed
+     * @throws \Swoft\Db\Exception\DbException
+     */
+    public function getAddressCount(array $params)
+    {
+        $count = Db::query("select count(*) AS add_count from sb_user WHERE status = 1 AND last_time > ? ",[
+            $params['pre_alter_time']
+        ])->getResult();
+        return $count[0]['add_count'];
     }
 }

@@ -85,7 +85,11 @@ class TestController
     }
 
 
-
+    /**
+     * @author Nihuan
+     * @RequestMapping()
+     * @throws DbException
+     */
     public function productService()
     {
         $pro_alter_time_pre = $pro_add_time_pre = $shop_alter_time_pre = 0;
@@ -104,7 +108,7 @@ class TestController
                 'index' => $this->elasticPoolConfig->getProductMaster(),
                 'body' => [
                     'settings' => $this->elasticPoolConfig->getSetting(),
-                    'mappings' => $this->elasticPoolConfig->getShopMap()
+                    'mappings' => $this->elasticPoolConfig->getProductMap()
                 ]
             ];
             $responseRes = $client->indices()->create($product_params);
@@ -164,6 +168,14 @@ class TestController
                             for ($c = 0;$c < $count_pages; $c ++){
                                 $list = array_splice($product_list, 0, $this->page_limit);
                                 if(!empty($list)){
+                                    $pro_ids = array_column($list,'product_id');
+                                    //product_use
+                                    $product_use_ids = [];
+                                    $product_uses = $this->get_product_uses($pro_ids);
+                                    if($product_uses[0]['pro_id'] != null){
+                                        $product_use_ids = array_flip(array_column($product_uses,'pro_id'));
+                                    }
+
                                     $user_ids = array_unique(array_column($list,'user_id'));
                                     //deposit
                                     $deposit = $this->get_user_deposit($user_ids);
@@ -177,63 +189,87 @@ class TestController
                                     //strength_score
                                     $strength_score = $this->get_user_score($user_ids);
                                     $strength_score_uids = array_flip(array_column($strength_score,'user_id'));
+                                    //user_info
+                                    $user_info = $this->get_user_info($user_ids);
+                                    $user_info_uids = array_flip(array_column($user_info,'user_id'));
                                     $bulk = $index = [];
-                                    foreach ($list as $key => $user){
-                                        $index = $user;
-                                        $index['user_id'] = (int)$user['user_id'];
-                                        $index['forbid'] = 0;
-                                        $index['deposit'] = 0;
-                                        $index['deposit_time'] = 0;
-                                        $index['orders_amount'] = 0;
+                                    foreach ($list as $key => $product){
+                                        $index = $product;
                                         $index['strength_score'] = 0;
-                                        $index['main_product'] = '';
-                                        $index['main_product_normalized'] = '';
+                                        $index['has_margin'] = 0;
+                                        $index['province'] = '';
+                                        $index['deposit_time'] = 0;
+                                        $index['shop_name'] = '';
+                                        $index['use_ids'] = '';
+                                        $index['deposit'] = 0;
+                                        $index['city_id'] = 0;
+                                        $index['city'] = '';
+                                        $index['forbid'] = 0;
+                                        $index['use_pid'] = '';
+                                        $index['user_status'] = 0;
+                                        $index['safe_price'] = 0;
+                                        $index['province_id'] = 0;
+                                        $index['orders_amount'] = 0;
+                                        $index['lv1'] = $index['lv1_normalized'] = $index['suffix_normalized'] = '';
 
-                                        if (isset($deposit_uids[$user['user_id']])){
-                                            $user_deposit = $deposit[$deposit_uids[$user['user_id']]];
+                                        $index['season'] = explode(',',$product['season']);
+                                        if(isset($product_use_ids[$product['user_id']])){
+                                            $uses = $product_uses[$product_use_ids[$product['user_id']]];
+                                            $index['use_ids'] = explode(',',$uses['use_ids']);
+                                            $index['use_pid'] = explode(',',$uses['use_pid']);
+                                        }
+
+                                        if(isset($user_info_uids[$product['user_id']])){
+                                            $info = $user_info[$user_info_uids[$product['user_id']]];
+                                            $index['has_margin'] = $info['safe_price'] > 0 ? 1 : 0;
+                                            $index['province'] = $info['province'];
+                                            $index['shop_name'] = $info['name'];
+                                            $index['city_id'] = (int)$info['city_id'];
+                                            $index['city'] = $info['city'];
+                                            $index['user_status'] = $info['user_status'];
+                                            $index['province_id'] = (int)$info['province_id'];
+                                            $index['safe_price'] = $info['safe_price'];
+                                        }
+
+                                        if (isset($deposit_uids[$product['user_id']])){
+                                            $user_deposit = $deposit[$deposit_uids[$product['user_id']]];
                                             $index['deposit'] = intval($user_deposit['level']/5);
                                             $index['deposit_time'] = $user_deposit['startTime'];
                                         }
 
-                                        if (isset($forbid_uids[$user['user_id']])){
+                                        if (isset($forbid_uids[$product['user_id']])){
                                             $index['forbid'] = 1;
                                         }
 
-                                        if (isset($main_product_uids[$user['user_id']])){
-                                            $main = $main_product[$main_product_uids[$user['user_id']]];
-                                            $index['main_product'] = $main['parents'] . ',' . $main['tags'] . ',' . $main['sub_tag'];
-                                            $index['main_product_normalized'] = str_replace(',',' ',$index['main_product']);
-                                        }
-
-                                        if(isset($order_amount_uids[$user['user_id']])){
-                                            $order = $order_amount[$order_amount_uids[$user['user_id']]];
+                                        if(isset($order_amount_uids[$product['user_id']])){
+                                            $order = $order_amount[$order_amount_uids[$product['user_id']]];
                                             $index['orders_amount'] = sprintf('%.2f',$order['total_amount']);
                                         }
 
-                                        if(isset($strength_score_uids[$user['user_id']])){
-                                            $score = $strength_score[$strength_score_uids[$user['user_id']]];
+                                        if(isset($strength_score_uids[$product['user_id']])){
+                                            $score = $strength_score[$strength_score_uids[$product['user_id']]];
                                             $index['strength_score'] = intval($score['score_value']);
                                         }
                                         $bulk['body'][] = [
                                             'index' => [
                                                 '_index' => $this->elasticPoolConfig->getShopMaster(),
                                                 '_type' => 'shop',
-                                                '_id' => $user['user_id']
+                                                '_id' => $product['user_id']
                                             ]
                                         ];
                                         $bulk['body'][] = $index;
-                                        $last_id = $user['user_id'];
+                                        $last_id = $product['product_id'];
                                     }
                                     $res = $client->bulk($bulk);
                                     $bulk = $index = [];
                                     if($res){
-                                        App::info('Shop Index Result : ' . json_encode($res));
+                                        App::info('Product Index Result : ' . json_encode($res));
                                     }
                                 }
-                                $user_ids = $list = $deposit = $main_product = [];
-                                $deposit_uids = $forbid_uids = $main_product_uids = $order_amount_uids = $strength_score_uids = [];
+                                $user_ids = $pro_ids = $list = $deposit = $main_product = [];
+                                $deposit_uids = $product_uses = $forbid_uids = $main_product_uids = $order_amount_uids = $strength_score_uids = [];
                             }
-                            $user_list = [];
+                            $product_list = [];
                         }
                         App::info('Last Id:' . $last_id);
                     }
@@ -317,6 +353,34 @@ class TestController
         $score_list = UserScore::findAll(['user_id' => $user_ids], ['fields' => ['user_id','score_value']])->getResult();
         $score_list = json_decode(json_encode($score_list),true);
         return $score_list;
+    }
+
+    /**
+     * 获取产品用途列表
+     * @author Nihuan
+     * @param $pro_ids
+     * @return mixed
+     * @throws DbException
+     */
+    protected function get_product_uses($pro_ids)
+    {
+        $ids = implode(',',$pro_ids);
+        $order_list = Db::query("SELECT pro_id, GROUP_CONCAT(distinct top_id) use_pid, GROUP_CONCAT(distinct tag_id) use_ids FROM sb_product_relation_use WHERE pro_id IN ({$ids})")->getResult();
+        return $order_list;
+    }
+
+
+    /**
+     * @author Nihuan
+     * @param $user_ids
+     * @return mixed
+     * @throws DbException
+     */
+    protected function get_user_info($user_ids)
+    {
+        $ids = implode(',',$user_ids);
+        $user_list = Db::query("SELECT user_id,name,city_id,city,province_id,province,safe_price,status AS user_status FROM sb_user WHERE user_id IN ({$ids})")->getResult();
+        return $user_list;
     }
 
 
