@@ -147,7 +147,7 @@ class ShopSearchLogic
      * @param array $filter
      * @return array
      */
-    private function analyzeKeyword(string $keyword, array $filter)
+    private function analyzeKeyword(string $keyword, array &$filter)
     {
         if(!empty($keyword)){
             $filter[] = [
@@ -174,7 +174,7 @@ class ShopSearchLogic
      * @param array $filter
      * @return array
      */
-    private function searchCommon(array $request, array $filter)
+    private function searchCommon(array $request, array &$filter)
     {
         if($request['main_industry'] != 0){
             $filter[] = [

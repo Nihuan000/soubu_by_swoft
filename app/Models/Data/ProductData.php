@@ -27,6 +27,7 @@ class ProductData
      */
     private $productDao;
 
+
     /**
      * 格式化店铺产品返回字段
      * @author Nihuan
@@ -72,6 +73,36 @@ class ProductData
     public function getIndexProductList($select_fields, $where, $limit, $last_id)
     {
         return $this->productDao->getProductList($select_fields,$where,$limit,$last_id);
+    }
+
+
+    /**
+     * 格式化返回数据
+     * @author Nihuan
+     * @param array $data
+     * @return array
+     */
+    public function setData(array $data)
+    {
+        $dataList = [];
+        foreach ($data as $pro) {
+            $product['productId'] = intval($pro['_id']);
+            $product['name'] = $pro['_source']['name'];
+            $product['price'] = sprintf('%.2f', $pro['_source']['price']);
+            $product['fabricDetail'] = $pro['_source']['fabric_detail'];
+            $product['type'] = intval($pro['_source']['type']);
+            $product['areaId'] = intval($pro['_source']['city_id']);
+            $product['cover'] = $pro['_source']['cover'];
+            $product['uses'] = $pro['_source']['uses'];
+            $product['alterTime'] = intval($pro['_source']['alter_time']);
+            $product['spread'] = 0;
+            $product['city'] = $pro['_source']['city'];
+            $product['deposit'] = intval($pro['_source']['deposit']);
+            $product['proNum'] = $pro['_source']['pro_num'];
+            $product['userId'] = intval($pro['_source']['user_id']);
+            $dataList[] = $product;
+        }
+        return $dataList;
     }
 
 }

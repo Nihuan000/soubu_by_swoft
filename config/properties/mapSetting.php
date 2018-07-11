@@ -27,13 +27,18 @@ return [
                 "type":"nGram",
                 "min_gram":1,
                 "max_gram":3
+            },
+            "pinyin_tokenizer":{
+                "type":"pinyin",
+                "first_letter":"prefix",
+                "padding_char":""
             }
         },
         "analyzer":{
-            "ik_pinyin_analyzer": {
+            "pinyin_analyzer": {
                 "type": "custom",
-                "tokenizer": "ik_smart",
-                "filter": ["my_pinyin", "word_delimiter"]
+                "tokenizer": "pinyin_tokenizer",
+                "filter": ["standard", "nGram"]
             },
             "lowercase_whitespace":{
                 "type":"custom",

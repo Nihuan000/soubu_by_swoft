@@ -4,6 +4,7 @@
  * User: nihuan
  * Date: 18-7-3
  * Time: 下午1:21
+ * Desc: 店铺搜索入口
  */
 
 namespace App\Controllers\Api;

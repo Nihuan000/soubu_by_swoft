@@ -36,11 +36,9 @@ use App\Pool\Config\ElasticsearchPoolConfig;
 class IndexTask
 {
     //每次读取数据量
-    protected $limit = 5000;
+    protected $limit = 6000;
     //批量写入ES数据量
-    protected $page_limit = 1000;
-    //定时器(分钟)
-    protected $timer = 3;
+    protected $page_limit = 2000;
 
     /**
      * @Value(env="${SEARCH_DB_NAME}")
@@ -88,17 +86,21 @@ class IndexTask
     public function summary()
     {
         $now_time = time();
-        echo date('Y-m-d H:i:s',$now_time) . PHP_EOL;
+        echo date('Y-m-d H:i:s',$now_time) . ' Index Start' . PHP_EOL;
         App::profileStart("tag");
         App::info('Index Request Check:');
+        //店铺索引
         $this->shopService(['now_time' => $now_time]);
+        //产品索引
         $this->productService(['now_time' => $now_time]);
+        //采购索引
         $this->buyService(['now_time' => $now_time]);
+        //推荐索引
         $this->recommendService(['now_time' => $now_time]);
+        //通讯录索引
         $this->addressBookService(['now_time' => $now_time]);
         App::info('Index Task End!');
         App::profileEnd("tag");
-        App::counting("cache", 1, 10);
         echo 'Index Task End!' . PHP_EOL . PHP_EOL;
     }
 

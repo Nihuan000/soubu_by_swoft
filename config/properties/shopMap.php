@@ -55,11 +55,8 @@ return [
                     'type' => 'integer'
                 ],
                 'name' => [
-                    'analyzer' => 'ik_pinyin_analyzer',
-                    'term_vector' => 'with_positions_offsets',
-                    'store' => 'no',
-                    'boost' => 10,
-                    'type' => 'text'
+                    'analyzer' => 'ik_smart',
+                    'type' => 'text',
                 ],
                 'name_na' => [
                     'index' => true,
@@ -107,10 +104,8 @@ return [
                     'type' => 'double'
                 ],
                 'main_product' => [
-                    'analyzer' => 'ik_pinyin_analyzer',
-                    'term_vector' => 'with_positions_offsets',
-                    'store' => 'no',
-                    'type' => 'text'
+                    'analyzer' => 'ik_smart',
+                    'type' => 'text',
                 ],
                 'from_type' => [
                     'type' => 'integer'
