@@ -136,34 +136,12 @@ class ProductSearchLogic
         $list = $must = [];
         $count = 0;
         $hash_code = $recommend = '';
+        $size = empty($request['page_size']) ? $this->poolConfig->getSize() : $request['page_size'];
+        $from = $request['page'] * $size;
+        //过滤基本信息, 状态/子帐号/黑名单/身份
 
         //过滤基本信息, 用户状态/审核通过/删除状态/上线状态/黑名单
-        $filter = [
-            [
-                'term' => [
-                    'user_status' => 1,
-                ]
-            ],[
-                'term' => [
-                    'forbid' => 0
-                ]
-            ],
-            [
-                'term' => [
-                    'is_audit' => 1
-                ]
-            ],
-            [
-                'term' => [
-                    'del_status' => 1
-                ]
-            ],
-            [
-                'term' => [
-                    'is_up' => 1
-                ]
-            ]
-        ];
+        $filter = $this->baseFilter();
 
         //筛选字段过滤
         $this->searchCommon($request, $filter);
@@ -173,7 +151,8 @@ class ProductSearchLogic
 
         //搜索语句生成
         $query = [
-            'size' => $this->poolConfig->getSize(),
+            'from' => $from,
+            'size' => $size,
             'query' => [
                 'bool' => [
                     'must' => $must,
@@ -205,6 +184,100 @@ class ProductSearchLogic
             print_r($e->getMessage());
         }
         return ['list' => $list, 'count' => $count, 'hash_code' => $hash_code, 'recommend' => $recommend];
+    }
+
+
+    /**
+     * 关联产品搜索
+     * @author Nihuan
+     * @param array $request
+     * @return array
+     */
+    public function getRelationList(array $request)
+    {
+        $list = $must = [];
+        $count = 0;
+        $hash_code = $recommend = '';
+        $size = empty($request['page_size']) ? $this->poolConfig->getSize() : $request['page_size'];
+        $from = $request['page'] * $size;
+
+        //过滤基本信息, 用户状态/审核通过/删除状态/上线状态/黑名单
+        $filter = $this->baseFilter();
+        //关键词搜索
+        $this->analyzeKeyword($request['keyword'], $must);
+        //搜索语句生成
+        $query = [
+            'from' => $from,
+            'size' => $size,
+            'query' => [
+                'bool' => [
+                    'must' => $must,
+                    'filter' => $filter,
+                ]
+            ],
+            '_source' => [
+                'includes' => $this->searchSource(),
+            ],
+            'sort' => $this->searchSort()
+        ];
+        //完整query组合
+        $params = [
+            'index' => $this->poolConfig->getProductMaster(),
+            'type' => 'product',
+            'body' => $query,
+        ];
+
+        try {
+            $client = $this->simpleConnectionPool();
+            $result = $client->search($params);
+            if(!empty($result)){
+                $result_hits = $result['hits']['hits'];
+                $list = $this->productData->setData($result_hits);
+                $count = $result['hits']['total'];
+                $hash_code = $this->sethashCode();
+            }
+        } catch (PoolException $e) {
+            print_r($e->getMessage());
+        }
+        return ['list' => $list, 'count' => $count, 'hash_code' => $hash_code];
+    }
+
+
+    /**
+     * 基本信息过滤
+     * @author Nihuan
+     * @return array
+     */
+    private function baseFilter()
+    {
+        //过滤基本信息, 用户状态/审核通过/删除状态/上线状态/黑名单
+        $filter = [
+            [
+                'term' => [
+                    'user_status' => 1,
+                ]
+            ],[
+                'term' => [
+                    'forbid' => 0
+                ]
+            ],
+            [
+                'term' => [
+                    'is_audit' => 1
+                ]
+            ],
+            [
+                'term' => [
+                    'del_status' => 1
+                ]
+            ],
+            [
+                'term' => [
+                    'is_up' => 1
+                ]
+            ]
+        ];
+        return $filter;
     }
 
 

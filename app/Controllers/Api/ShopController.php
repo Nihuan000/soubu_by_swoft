@@ -46,6 +46,8 @@ class ShopController
         $main_industry = $request->post('main_industry',-1);
         $area_id = $request->post('area_id',0);
         $area_name = $request->post('area_name','');
+        $page = $request->post('page',0);
+        $page_size = $request->post('pageSize',20);
         $params = [
             'keyword' => $keyword,
             'main_industry' => $main_industry,
@@ -54,6 +56,28 @@ class ShopController
             'operation_mode' => $operation_mode,
             'level' => $level,
             'certification' => $certification,
+            'page' => $page,
+            'page_size' => $page_size
+        ];
+        $searchRes = $this->shopSearchLogic->getShopList($params);
+        return compact('searchRes');
+    }
+
+
+    /**
+     * 采购关联店铺搜索
+     * @author Nihuan
+     * @RequestMapping(route="relation_shop_list", method={RequestMethod::POST})
+     * @param Request $request
+     * @return array
+     */
+    public function buy_relation_shop(Request $request)
+    {
+        $keyword = $request->post('keyword', '');
+        $page_size = $request->post('pageSize',5);
+        $params = [
+            'keyword' => $keyword,
+            'page_size' => $page_size
         ];
         $searchRes = $this->shopSearchLogic->getShopList($params);
         return compact('searchRes');

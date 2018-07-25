@@ -66,4 +66,36 @@ class ProductController
         $searchRes = $this->productSearchLogic->getProductList($params);
         return compact('searchRes');
     }
+
+
+    /**
+     * 产品关联产品搜索
+     * @author Nihuan
+     * @RequestMapping()
+     * @param Request $request
+     * @return array
+     */
+    public function get_relation_list(Request $request)
+    {
+        $product_id = (int)$request->post('productId');
+        $page = (int)$request->post('page');
+        $pageSize = (int)$request->post('pageSize');
+        $shopSelf = (int)$request->post('shopSelf');
+        $exceptSelf = (int)$request->post('exceptSelf');
+        $is_self = 1;
+        if($shopSelf == 1) {
+            $is_self = 1;
+        }
+        if($exceptSelf == 1){
+            $is_self = 0;
+        }
+        $params = [
+            'product_id' => $product_id,
+            'page' => $page,
+            'pageSize' => $pageSize,
+            'is_self' => $is_self
+        ];
+        $searchRes = [];
+        return compact('searchRes');
+    }
 }

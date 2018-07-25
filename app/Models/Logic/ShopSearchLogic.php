@@ -74,7 +74,8 @@ class ShopSearchLogic
         $list = [];
         $count = 0;
         $hash_code = $recommend = '';
-
+        $size = empty($request['page_size']) ? $this->poolConfig->getSize() : $request['page_size'];
+        $from = $request['page'] * $size;
         //过滤基本信息, 状态/子帐号/黑名单/身份
         $filter = [
             [
@@ -104,7 +105,8 @@ class ShopSearchLogic
 
         //搜索语句生成
         $query = [
-            'size' => $this->poolConfig->getSize(),
+            'from' => $from,
+            'size' => $size,
             'query' => [
                 'bool' => [
                     'filter' => $filter,
