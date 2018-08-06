@@ -8,6 +8,7 @@
 
 namespace App\Models\Dao;
 
+use App\Models\Entity\Product;
 use Swoft\Bean\Annotation\Bean;
 use Swoft\Bean\Annotation\Inject;
 use Swoft\Db\Db;
@@ -90,5 +91,16 @@ class ProductDao
                 $last_id
             ])->getResult();
         return $product_list;
+    }
+
+    /**
+     * 根据产品id获取信息
+     * author: nihuan
+     * @param int $product_id
+     * @return mixed
+     */
+    public function getProductInfo(int $product_id)
+    {
+        return Product::findById($product_id)->getResult();
     }
 }

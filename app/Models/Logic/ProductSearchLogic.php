@@ -138,7 +138,6 @@ class ProductSearchLogic
         $hash_code = $recommend = '';
         $size = empty($request['page_size']) ? $this->poolConfig->getSize() : $request['page_size'];
         $from = $request['page'] * $size;
-        //过滤基本信息, 状态/子帐号/黑名单/身份
 
         //过滤基本信息, 用户状态/审核通过/删除状态/上线状态/黑名单
         $filter = $this->baseFilter();
@@ -195,7 +194,7 @@ class ProductSearchLogic
      */
     public function getRelationList(array $request)
     {
-        $list = $must = [];
+        $list = $must = $must_not = [];
         $count = 0;
         $hash_code = $recommend = '';
         $size = empty($request['page_size']) ? $this->poolConfig->getSize() : $request['page_size'];
@@ -203,8 +202,20 @@ class ProductSearchLogic
 
         //过滤基本信息, 用户状态/审核通过/删除状态/上线状态/黑名单
         $filter = $this->baseFilter();
+        $product_info = $this->productData->getSimpleProduct($request['product_id']);
+        if($request['is_self'] == 1){
+            $filter[] = [
+                'user_id' => (int)$product_info['userId']
+            ];
+        }
+        if($request['is_self'] == 0){
+            $must_not[] = [
+                'user_id' => (int)$product_info['userId']
+            ];
+        }
+        $keyword = $product_info['name'];
         //关键词搜索
-        $this->analyzeKeyword($request['keyword'], $must);
+        $this->analyzeKeyword($keyword, $must);
         //搜索语句生成
         $query = [
             'from' => $from,
@@ -212,6 +223,7 @@ class ProductSearchLogic
             'query' => [
                 'bool' => [
                     'must' => $must,
+                    'must_not' => $must_not,
                     'filter' => $filter,
                 ]
             ],

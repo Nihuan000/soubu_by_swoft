@@ -69,7 +69,7 @@ class ProductController
 
 
     /**
-     * 产品关联产品搜索
+     * 关联产品搜索
      * @author Nihuan
      * @RequestMapping()
      * @param Request $request
@@ -95,7 +95,7 @@ class ProductController
             'pageSize' => $pageSize,
             'is_self' => $is_self
         ];
-        $searchRes = [];
+        $searchRes = $this->productSearchLogic->getRelationList($params);
         return compact('searchRes');
     }
 }

@@ -29,6 +29,18 @@ class ProductData
 
 
     /**
+     * 获取产品信息
+     * author: nihuan
+     * @param int $pro_id
+     * @return mixed
+     */
+    public function getSimpleProduct(int $pro_id)
+    {
+        return $this->productDao->getProductInfo($pro_id);
+    }
+
+
+    /**
      * 格式化店铺产品返回字段
      * @author Nihuan
      * @param array $data
